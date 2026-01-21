@@ -1,0 +1,61 @@
+name: Manual Build & Upload Artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch / Tag / Commit to build'
+        required: true
+        default: '1.20.1/main'
+      serverType:
+        description: 'Server Type'
+        required: true
+        type: choice
+        options:
+          - fabric
+          - forge
+          - all
+        default: all
+
+jobs:
+  build:
+    name: Build (${{ inputs.serverType }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          submodules: recursive
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Grant Gradle Permission
+        run: chmod +x gradlew
+
+      - name: Build
+        run: |
+          if [ "${{ inputs.serverType }}" = "fabric" ]; then
+            ./gradlew buildFabric --no-daemon
+          elif [ "${{ inputs.serverType }}" = "forge" ]; then
+            ./gradlew buildForge --no-daemon
+          else
+            ./gradlew build --no-daemon
+          fi
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ inputs.serverType }}-${{ github.run_number }}
+          path: |
+            **/build/libs/*.jar
+          if-no-files-found: error
