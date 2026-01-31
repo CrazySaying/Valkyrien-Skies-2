@@ -17,14 +17,11 @@ class BuoyancyHandlerAttachment : ShipPhysicsListener {
     ) {
         if (!VSGameConfig.SERVER.enablePocketBuoyancy) return
         if (buoyancyData.pocketCenterAverage.lengthSquared() == 0.0) return // No pockets
-        physShip.buoyantFactor = 1.0 + (buoyancyData.pocketVolumeTotal * VSGameConfig.SERVER.buoyancyFactorPerPocketVolume)
         val coverage = physShip.liquidOverlap
         if (coverage <= 0.0) {
             return
         }
-        val upwardForce = coverage * buoyancyData.pocketVolumeTotal * VSGameConfig.SERVER.buoyancyFactorPerPocketVolume
-        physShip.applyWorldForceToModelPos(
-            Vector3d(0.0, upwardForce, 0.0),
+        physShip.buoyantFactor = 1.0 + (buoyancyData.pocketVolumeTotal * VSGameConfig.SERVER.buoyancyFactorPerPocketVolume)
             buoyancyData.pocketCenterAverage
             //buoyancyData.pocketCenterAverage
         )
