@@ -18,7 +18,6 @@ class BuoyancyHandlerAttachment : ShipPhysicsListener {
         if (!VSGameConfig.SERVER.enablePocketBuoyancy) return
         if (buoyancyData.pocketCenterAverage.lengthSquared() == 0.0) return // No pockets
         physShip.buoyantFactor = 1.0 + (buoyancyData.pocketVolumeTotal * VSGameConfig.SERVER.buoyancyFactorPerPocketVolume)
-        return
         val coverage = physShip.liquidOverlap
         if (coverage <= 0.0) {
             return
